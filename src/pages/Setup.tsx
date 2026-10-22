@@ -3,8 +3,8 @@ import type { Store } from '../lib/store';
 import { PLAYER_COLORS, PLAYER_EMOJIS } from '../lib/format';
 
 export function Setup({ store, onCreated }: { store: Store; onCreated: (id: string) => void }) {
-  const [name, setName] = useState('Liga de los Martes');
-  const [names, setNames] = useState(['', '', '', '']);
+  const [name, setName] = useState('Padel con los Cuates');
+  const [names, setNames] = useState(['Carlos', 'Mauri', 'Choforo', 'Marri']);
   const [busy, setBusy] = useState(false);
   const ready = name.trim() && names.every((n) => n.trim());
 
