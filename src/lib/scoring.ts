@@ -196,3 +196,31 @@ export function records(sessions: Session[]): Records {
   }
   return out;
 }
+
+export interface RivalStat {
+  rivalId: string;
+  played: number;
+  won: number;
+  lost: number;
+}
+
+/** Récord de un jugador contra cada rival (partidos en que estuvo en la pareja contraria). */
+export function rivalStats(sessions: Session[], playerId: string, playerIds: string[]): RivalStat[] {
+  const map = new Map<string, RivalStat>();
+  for (const id of playerIds) if (id !== playerId) map.set(id, { rivalId: id, played: 0, won: 0, lost: 0 });
+  for (const s of sessions) {
+    for (const m of s.matches) {
+      const mineA = m.teamA.includes(playerId);
+      if (!mineA && !m.teamB.includes(playerId)) continue;
+      const [mine, theirs] = mineA ? [m.gamesA, m.gamesB] : [m.gamesB, m.gamesA];
+      for (const rival of mineA ? m.teamB : m.teamA) {
+        const st = map.get(rival);
+        if (!st) continue;
+        st.played++;
+        if (mine > theirs) st.won++;
+        if (mine < theirs) st.lost++;
+      }
+    }
+  }
+  return [...map.values()];
+}

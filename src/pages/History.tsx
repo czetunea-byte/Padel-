@@ -1,10 +1,12 @@
 import { useState } from 'react';
 import { Avatar } from '../components/Avatar';
 import { fmtDate, medal, signed } from '../lib/format';
+import { dayMoney, money } from '../lib/money';
 import { dayResult, sortSessions } from '../lib/scoring';
-import { byId, type PageProps } from './types';
+import { dayShareText, shareText } from '../lib/share';
+import { byId, leagueLink, type PageProps } from './types';
 
-export function History({ store, leagueId, players, sessions, onEdit }: PageProps & { onEdit: (id: string) => void }) {
+export function History({ store, leagueId, leagueName, players, sessions, onEdit }: PageProps & { onEdit: (id: string) => void }) {
   const pmap = byId(players);
   const [open, setOpen] = useState<string | null>(null);
   const list = sortSessions(sessions).reverse();
@@ -19,6 +21,7 @@ export function History({ store, leagueId, players, sessions, onEdit }: PageProp
     <>
       {list.map((s, idx) => {
         const res = dayResult(s);
+        const cash = dayMoney(s);
         const winners = res.filter((r) => r.place === 1);
         const isOpen = open === s.id;
         return (
@@ -47,6 +50,11 @@ export function History({ store, leagueId, players, sessions, onEdit }: PageProp
                     </span>
                     <b>
                       {m.gamesA} – {m.gamesB}
+                      {cash.bonuses.some((b) => b.matchIndex === i) && (
+                        <span className="tag-mini">
+                          {cash.bonuses.find((b) => b.matchIndex === i)!.kind === 'zapato' ? ' 👟' : ' 🔄'}
+                        </span>
+                      )}
                     </b>
                     <span className={m.gamesB > m.gamesA ? 'won' : ''}>
                       {m.teamB.map((id) => pmap[id]?.name).join(' & ')}
@@ -63,10 +71,19 @@ export function History({ store, leagueId, players, sessions, onEdit }: PageProp
                         {r.handicap ? ` ${signed(r.handicap)}` : ''}
                       </span>
                       <b className="total">{r.total}</b>
+                      <span className={`cash small ${cash.total[r.playerId] > 0 ? 'pos' : cash.total[r.playerId] < 0 ? 'neg' : ''}`}>
+                        {money(cash.total[r.playerId])}
+                      </span>
                     </li>
                   ))}
                 </ul>
                 <div className="row">
+                  <button
+                    className="btn whatsapp"
+                    onClick={() => shareText(dayShareText(s, players, leagueName, leagueLink(leagueId)))}
+                  >
+                    📲 Compartir
+                  </button>
                   <button className="btn ghost" onClick={() => onEdit(s.id)}>
                     ✏️ Editar
                   </button>

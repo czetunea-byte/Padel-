@@ -7,9 +7,11 @@ import { NewSession } from './pages/NewSession';
 import { History } from './pages/History';
 import { Stats } from './pages/Stats';
 import { Players } from './pages/Players';
+import { Money } from './pages/Money';
+import { Profile } from './pages/Profile';
 
 const LAST_KEY = 'padel-liga:last';
-const TABS: Tab[] = ['tabla', 'jornada', 'historial', 'stats', 'jugadores'];
+const TABS: Tab[] = ['tabla', 'jornada', 'historial', 'cuentas', 'stats', 'jugadores', 'jugador'];
 
 interface Route {
   leagueId: string | null;
@@ -17,7 +19,7 @@ interface Route {
   editId?: string;
 }
 
-/** Rutas: #/liga/<id>/<tab>[/<sessionId>] */
+/** Rutas: #/liga/<id>/<tab>[/<sessionId|playerId>] */
 function parseHash(): Route {
   const [, kind, id, tab, extra] = location.hash.replace(/^#/, '').split('/');
   if (kind === 'liga' && id) {
@@ -34,7 +36,7 @@ function parseHash(): Route {
 
 export default function App() {
   const [route, setRoute] = useState<Route>(parseHash);
-  const { store, league, players, sessions, error } = useLeague(route.leagueId);
+  const { store, league, players, sessions, settlements, error } = useLeague(route.leagueId);
 
   useEffect(() => {
     const onHash = () => setRoute(parseHash());
@@ -89,16 +91,25 @@ export default function App() {
     );
   }
 
-  const common = { store, leagueId: league.id, players, sessions };
+  const common = { store, leagueId: league.id, leagueName: league.name, players, sessions, settlements };
   return (
     <div className="app">
       <header className="topbar">
         <span className="logo">🎾</span>
         <h1>{league.name}</h1>
         {store.mode === 'local' && <span className="badge">demo</span>}
+        <button
+          className={`icon-btn ${route.tab === 'jugadores' ? 'active' : ''}`}
+          aria-label="Jugadores y ajustes"
+          onClick={() => go('jugadores')}
+        >
+          ⚙️
+        </button>
       </header>
       <main className="page">
         {route.tab === 'tabla' && <Leaderboard {...common} go={go} />}
+        {route.tab === 'cuentas' && <Money {...common} />}
+        {route.tab === 'jugador' && <Profile {...common} playerId={route.editId} go={go} />}
         {route.tab === 'jornada' && (
           <NewSession key={route.editId ?? 'new'} {...common} editId={route.editId} onDone={() => go('tabla')} />
         )}

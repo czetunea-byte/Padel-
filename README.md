@@ -11,8 +11,18 @@ Web app para llevar el registro de nuestras jornadas de padel: 4 jugadores, 3 pa
 - **Tabla general**: ordenada por **días ganados**. Desempate: más 2º lugares, luego mejor lugar promedio.
 - **Extras**: podio 🥇🥈🥉, rachas 🔥, cuchara de madera 🥄 para el último, mejor y peor pareja, récords y gráfica de la evolución en la tabla.
 - El handicap se guarda "congelado" en cada jornada: si lo cambias, las jornadas viejas no se alteran.
+- **Temporadas** por trimestre (Ene–Mar, Abr–Jun, Jul–Sep, Oct–Dic): la tabla se puede ver por temporada o histórica,
+  y el Salón de la fama guarda a cada campeón.
+- **Dinero 💰**: el 1º del día cobra $300 (el 3º paga $100 y el 4º $200; el 2º ni paga ni cobra). En empates se reparte.
+  En un **zapato** 👟 (la pareja perdedora hace 0 games, automático) o una **remontada** 🔄 (se marca a mano),
+  cada perdedor le paga $100 a un ganador. La pantalla de Cuentas lleva el saldo, dice quién le paga a quién
+  y tiene el botón "Ya pagamos" para dejar todo en $0.
+- **Perfil** de cada jugador (toca su nombre en la tabla): récord contra cada rival, mejor compañero, némesis e insignias.
+- **Handicap sugerido** (en ⚙️): la mitad de los games que a cada quien le faltan para el mejor promedio de las últimas 8 jornadas.
+- **Compartir en WhatsApp** el resultado del día, con podio, marcadores, dinero y carrilla.
 
-Pantallas: 🏆 Tabla · 📜 Historial (ver, editar, borrar) · ➕ Jornada · 📈 Stats · ⚙️ Jugadores (nombre, emoji, color, handicap, compartir enlace).
+Pantallas: 🏆 Tabla · 📜 Historial (ver, editar, borrar, compartir) · ➕ Jornada · 💰 Cuentas · 📈 Stats ·
+⚙️ Jugadores (nombre, emoji, color, handicap, handicap sugerido, compartir enlace).
 
 ## Probarlo en tu compu
 

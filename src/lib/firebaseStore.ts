@@ -3,7 +3,7 @@ import { getAuth, signInAnonymously } from 'firebase/auth';
 import {
   addDoc, collection, deleteDoc, doc, getFirestore, onSnapshot, setDoc, writeBatch,
 } from 'firebase/firestore';
-import type { League, Player, Session } from './types';
+import type { League, Player, Session, Settlement } from './types';
 import type { Store } from './store';
 
 export async function createFirebaseStore(): Promise<Store> {
@@ -22,6 +22,7 @@ export async function createFirebaseStore(): Promise<Store> {
   const leagueRef = (id: string) => doc(db, 'leagues', id);
   const players = (id: string) => collection(db, 'leagues', id, 'players');
   const sessions = (id: string) => collection(db, 'leagues', id, 'sessions');
+  const settlements = (id: string) => collection(db, 'leagues', id, 'settlements');
 
   return {
     mode: 'firebase',
@@ -39,6 +40,8 @@ export async function createFirebaseStore(): Promise<Store> {
       onSnapshot(players(id), (q) => cb(q.docs.map((d) => ({ ...d.data(), id: d.id }) as Player))),
     watchSessions: (id, cb) =>
       onSnapshot(sessions(id), (q) => cb(q.docs.map((d) => ({ ...d.data(), id: d.id }) as Session))),
+    watchSettlements: (id, cb) =>
+      onSnapshot(settlements(id), (q) => cb(q.docs.map((d) => ({ ...d.data(), id: d.id }) as Settlement))),
     async savePlayer(leagueId, { id, ...data }: Player) {
       await setDoc(doc(players(leagueId), id), data);
     },
@@ -50,6 +53,9 @@ export async function createFirebaseStore(): Promise<Store> {
     },
     async deleteSession(leagueId, id) {
       await deleteDoc(doc(sessions(leagueId), id));
+    },
+    async addSettlement(leagueId, s) {
+      return (await addDoc(settlements(leagueId), s)).id;
     },
   };
 }

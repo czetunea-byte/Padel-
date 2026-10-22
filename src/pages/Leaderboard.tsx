@@ -1,20 +1,27 @@
-import { useMemo } from 'react';
+import { useMemo, useState } from 'react';
 import { Avatar } from '../components/Avatar';
 import type { Tab } from '../components/NavBar';
 import { Podium } from '../components/Podium';
 import { lastDayBanter, leaderBanter, nickname } from '../lib/banter';
-import { fmtLongDate, medal, signed } from '../lib/format';
+import { fmtLongDate, medal, signed, today } from '../lib/format';
+import { seasonOf } from '../lib/seasons';
 import { dayResult, leaderboard, sortSessions } from '../lib/scoring';
-import { byId, type PageProps } from './types';
+import { byId, nameMap, type PageProps } from './types';
 
-export function Leaderboard({ players, sessions, go }: PageProps & { go: (t: Tab) => void }) {
+type View = 'temporada' | 'historico';
+
+export function Leaderboard({ players, sessions: all, go }: PageProps & { go: (t: Tab, extra?: string) => void }) {
   const ids = players.map((p) => p.id);
   const pmap = byId(players);
+  const season = seasonOf(today());
+  const inSeason = useMemo(() => all.filter((s) => seasonOf(s.date).id === season.id), [all, season.id]);
+  const [view, setView] = useState<View>(inSeason.length ? 'temporada' : 'historico');
+  const sessions = view === 'temporada' ? inSeason : all;
   const table = useMemo(() => leaderboard(sessions, ids), [sessions, ids.join()]);
-  const last = sortSessions(sessions).at(-1);
+  const last = sortSessions(all).at(-1);
   const lastRes = last ? dayResult(last) : [];
 
-  if (!sessions.length) {
+  if (!all.length) {
     return (
       <div className="empty">
         <div className="ball big">🎾</div>
@@ -27,10 +34,25 @@ export function Leaderboard({ players, sessions, go }: PageProps & { go: (t: Tab
     );
   }
 
-  const names = Object.fromEntries(players.map((p) => [p.id, p.name]));
-  const seed = String(sessions.length);
+  const names = nameMap(players);
+  const seed = `${view}:${sessions.length}`;
   return (
     <>
+      <div className="segmented" role="tablist">
+        <button role="tab" aria-selected={view === 'temporada'} onClick={() => setView('temporada')}>
+          🗓️ {season.label}
+        </button>
+        <button role="tab" aria-selected={view === 'historico'} onClick={() => setView('historico')}>
+          📚 Histórico
+        </button>
+      </div>
+      {!sessions.length ? (
+        <section className="card center">
+          <p className="tagline">Arrancó la temporada {season.label} 🏁</p>
+          <p className="muted small">Nadie ha ganado nada todavía. La tabla está en ceros y el pique al máximo.</p>
+        </section>
+      ) : (
+      <>
       <section className="card hero-card">
         <p className="eyebrow">Días ganados</p>
         <Podium
@@ -58,7 +80,7 @@ export function Leaderboard({ players, sessions, go }: PageProps & { go: (t: Tab
           </thead>
           <tbody>
             {table.map((s) => (
-              <tr key={s.playerId} className={s.rank === 1 ? 'lead' : ''}>
+              <tr key={s.playerId} className={`clickable ${s.rank === 1 ? 'lead' : ''}`} onClick={() => go('jugador', s.playerId)}>
                 <td className="rank">{s.rank}</td>
                 <td className="left">
                   <span className="who">
@@ -83,10 +105,13 @@ export function Leaderboard({ players, sessions, go }: PageProps & { go: (t: Tab
           </tbody>
         </table>
         <p className="muted small">
-          {sessions.length} {sessions.length === 1 ? 'jornada jugada' : 'jornadas jugadas'} · desempate: más 2º lugares, luego
-          mejor promedio.
+          {sessions.length} {sessions.length === 1 ? 'jornada jugada' : 'jornadas jugadas'}
+          {view === 'temporada' ? ` en ${season.label}` : ' en total'} · desempate: más 2º lugares, luego mejor promedio.
+          Toca a un jugador para ver su perfil.
         </p>
       </section>
+      </>
+      )}
 
       {last && (
         <section className="card">

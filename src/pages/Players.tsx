@@ -2,10 +2,11 @@ import { useEffect, useState } from 'react';
 import { Avatar } from '../components/Avatar';
 import { Stepper } from '../components/Stepper';
 import { PLAYER_COLORS, PLAYER_EMOJIS, signed } from '../lib/format';
+import { HANDICAP_MIN_SESSIONS, HANDICAP_WINDOW, suggestHandicaps } from '../lib/handicap';
 import type { League, Player } from '../lib/types';
 import type { PageProps } from './types';
 
-export function Players({ store, leagueId, league, players, onLeave }: PageProps & {
+export function Players({ store, leagueId, league, players, sessions, onLeave }: PageProps & {
   league: League;
   onLeave: () => void;
 }) {
@@ -38,6 +39,12 @@ export function Players({ store, leagueId, league, players, onLeave }: PageProps
           <PlayerEditor key={p.id} player={p} onSave={(np) => store.savePlayer(leagueId, np)} />
         ))}
       </section>
+
+      <HandicapSuggestions
+        players={players}
+        sessions={sessions}
+        onApply={(changes) => Promise.all(changes.map((p) => store.savePlayer(leagueId, p)))}
+      />
 
       <section className="card">
         <h2 className="card-title">Invita al grupo</h2>
@@ -129,5 +136,61 @@ function PlayerEditor({ player, onSave }: { player: Player; onSave: (p: Player) 
         </div>
       )}
     </div>
+  );
+}
+
+function HandicapSuggestions({ players, sessions, onApply }: {
+  players: Player[];
+  sessions: PageProps['sessions'];
+  onApply: (changes: Player[]) => Promise<unknown>;
+}) {
+  const [busy, setBusy] = useState(false);
+  const sug = suggestHandicaps(sessions, players.map((p) => p.id));
+  const changes = sug ? players.filter((p) => sug[p.id] && sug[p.id].suggested !== p.handicap) : [];
+
+  return (
+    <section className="card">
+      <h2 className="card-title">🧮 Handicap sugerido</h2>
+      {!sug ? (
+        <p className="muted small">
+          Después de {HANDICAP_MIN_SESSIONS} jornadas te sugiero handicaps para emparejar el pique.
+        </p>
+      ) : (
+        <>
+          <p className="muted small">
+            La mitad de los games que a cada quien le faltan por día para alcanzar al mejor promedio (últimas{' '}
+            {Math.min(HANDICAP_WINDOW, sessions.length)} jornadas, sin contar handicap).
+          </p>
+          <ul className="day-list">
+            {players.map((p) => (
+              <li key={p.id}>
+                <span className="grow">
+                  {p.emoji} {p.name}
+                </span>
+                <span className="muted small">{sug[p.id]?.avgGames.toFixed(1)} games/día</span>
+                <b>
+                  {signed(p.handicap)} → {signed(sug[p.id]?.suggested ?? 0)}
+                </b>
+              </li>
+            ))}
+          </ul>
+          <button
+            className="btn primary block"
+            disabled={!changes.length || busy}
+            onClick={async () => {
+              if (!confirm('¿Aplicar los handicaps sugeridos? Cuentan desde la próxima jornada.')) return;
+              setBusy(true);
+              try {
+                await onApply(changes.map((p) => ({ ...p, handicap: sug[p.id].suggested })));
+              } finally {
+                setBusy(false);
+              }
+            }}
+          >
+            {changes.length ? 'Aplicar sugerencia' : 'Ya están al día ✅'}
+          </button>
+        </>
+      )}
+    </section>
   );
 }

@@ -1,10 +1,11 @@
-import type { League, Player, Session } from './types';
+import type { League, Player, Session, Settlement } from './types';
 import type { Store } from './store';
 
 interface LeagueData {
   league: League;
   players: Player[];
   sessions: Session[];
+  settlements?: Settlement[];
 }
 
 const KEY = 'padel-liga:demo';
@@ -52,6 +53,7 @@ export function createLocalStore(): Store {
         league: { id, name, createdAt: Date.now() },
         players: players.map((p) => ({ ...p, id: uid() })),
         sessions: [],
+        settlements: [],
       };
       commit();
       return id;
@@ -59,6 +61,7 @@ export function createLocalStore(): Store {
     watchLeague: (id, cb) => watch(() => db[id]?.league ?? null, cb),
     watchPlayers: (id, cb) => watch(() => [...(db[id]?.players ?? [])], cb),
     watchSessions: (id, cb) => watch(() => [...(db[id]?.sessions ?? [])], cb),
+    watchSettlements: (id, cb) => watch(() => [...(db[id]?.settlements ?? [])], cb),
     async savePlayer(leagueId, p) {
       const d = db[leagueId];
       d.players = d.players.map((x) => (x.id === p.id ? p : x));
@@ -79,6 +82,13 @@ export function createLocalStore(): Store {
       const d = db[leagueId];
       d.sessions = d.sessions.filter((x) => x.id !== id);
       commit();
+    },
+    async addSettlement(leagueId, s) {
+      const id = uid();
+      const d = db[leagueId];
+      d.settlements = [...(d.settlements ?? []), { ...s, id }];
+      commit();
+      return id;
     },
   };
 }

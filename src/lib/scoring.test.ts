@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { dayResult, leaderboard, pairStats, pairings, positionHistory, records } from './scoring';
+import { dayResult, leaderboard, pairStats, pairings, positionHistory, records, rivalStats } from './scoring';
 import type { Session } from './types';
 
 const P = ['ana', 'beto', 'caro', 'dani'];
@@ -80,5 +80,14 @@ describe('pairStats y records', () => {
   it('encuentra la mayor paliza', () => {
     const r = records([session('2026-01-01', [[6, 1], [6, 4], [2, 6]])]);
     expect(r.biggestWin?.margin).toBe(5);
+  });
+});
+
+describe('rivalStats', () => {
+  it('cuenta victorias y derrotas contra cada rival', () => {
+    // ana gana los 3 partidos: cada rival la enfrentó 2 veces
+    const r = rivalStats([session('2026-01-01', [[6, 0], [6, 0], [6, 0]])], 'ana', P);
+    expect(r).toHaveLength(3);
+    expect(r.every((x) => x.played === 2 && x.won === 2 && x.lost === 0)).toBe(true);
   });
 });

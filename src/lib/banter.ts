@@ -199,3 +199,24 @@ export function lastDayBanter(session: Session, names: Names): { kind: LastDayKi
   }
   return { kind, text: fill(pick(LAST_DAY[kind], `${session.id}:D`), vars) };
 }
+
+const DEBT = {
+  debe: [
+    '{name} debe {amount}. Ya vete despidiendo de las chelas 🍺',
+    '{name} trae una deuda de {amount}. ¿Aceptan transferencia o qué? 💸',
+    '{name} va {amount} abajo. Así ni el SAT 🧾',
+  ],
+  cobra: ['{name} va {amount} arriba. Ya se siente patrocinador 🤑', '{name} cobra {amount}. Que invite la cena 🌮'],
+  limpio: ['Cuentas claras, amistades largas 🤝', 'Todos a mano. Por ahora… 😏'],
+};
+
+/** Carrilla para la pantalla de cuentas. */
+export function debtBanter(bal: Record<string, number>, names: Names, seed: string, fmt: (n: number) => string): string {
+  const entries = Object.entries(bal);
+  const worst = entries.reduce((a, b) => (b[1] < a[1] ? b : a), entries[0]);
+  const best = entries.reduce((a, b) => (b[1] > a[1] ? b : a), entries[0]);
+  if (!worst || (worst[1] === 0 && best[1] === 0)) return pick(DEBT.limpio, `${seed}:$`);
+  const debtor = fill(pick(DEBT.debe, `${seed}:$d`), { name: names[worst[0]] ?? '', amount: fmt(-worst[1]) });
+  const creditor = fill(pick(DEBT.cobra, `${seed}:$c`), { name: names[best[0]] ?? '', amount: fmt(best[1]) });
+  return `${debtor} · ${creditor}`;
+}

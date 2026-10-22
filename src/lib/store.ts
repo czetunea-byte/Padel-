@@ -1,4 +1,4 @@
-import type { League, NewPlayer, NewSession, Player, Session } from './types';
+import type { League, NewPlayer, NewSession, NewSettlement, Player, Session, Settlement } from './types';
 
 export type Unsub = () => void;
 
@@ -9,10 +9,12 @@ export interface Store {
   watchLeague(id: string, cb: (l: League | null) => void): Unsub;
   watchPlayers(id: string, cb: (p: Player[]) => void): Unsub;
   watchSessions(id: string, cb: (s: Session[]) => void): Unsub;
+  watchSettlements(id: string, cb: (s: Settlement[]) => void): Unsub;
   savePlayer(leagueId: string, p: Player): Promise<void>;
   addSession(leagueId: string, s: NewSession): Promise<string>;
   updateSession(leagueId: string, s: Session): Promise<void>;
   deleteSession(leagueId: string, id: string): Promise<void>;
+  addSettlement(leagueId: string, s: NewSettlement): Promise<string>;
 }
 
 export const firebaseConfigured = Boolean(

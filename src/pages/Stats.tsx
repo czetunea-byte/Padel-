@@ -4,7 +4,8 @@ import {
 } from 'chart.js';
 import { Line } from 'react-chartjs-2';
 import { Avatar } from '../components/Avatar';
-import { fmtDate } from '../lib/format';
+import { fmtDate, today } from '../lib/format';
+import { seasonChampions } from '../lib/seasons';
 import { leaderboard, pairStats, positionHistory, records } from '../lib/scoring';
 import { byId, type PageProps } from './types';
 
@@ -18,6 +19,7 @@ export function Stats({ players, sessions }: PageProps) {
   const pairs = useMemo(() => pairStats(sessions, ids), [sessions, key]);
   const rec = useMemo(() => records(sessions), [sessions]);
   const table = useMemo(() => leaderboard(sessions, ids), [sessions, key]);
+  const champs = useMemo(() => seasonChampions(sessions, ids, today()).reverse(), [sessions, key]);
 
   if (!sessions.length) return <p className="muted center">Las estadísticas aparecen después de la primera jornada.</p>;
 
@@ -126,6 +128,23 @@ export function Stats({ players, sessions }: PageProps) {
             <span className="muted small">{spoonKing.spoons} veces último</span>
           </div>
         )}
+      </section>
+
+      <section className="card">
+        <h2 className="card-title">🏛️ Salón de la fama</h2>
+        <ul className="day-list">
+          {champs.map((c) => (
+            <li key={c.season.id}>
+              <span className="medal">{c.finished ? '🏆' : '⏳'}</span>
+              <span className="grow">
+                <b>{c.season.label}</b>
+                <span className="muted small"> · {c.played} jornadas</span>
+              </span>
+              <span className="muted small">{c.finished ? 'Campeón' : 'Va ganando'}</span>
+              <b>{c.playerIds.map((id) => pmap[id]?.name).join(' y ')}</b>
+            </li>
+          ))}
+        </ul>
       </section>
 
       <section className="card">

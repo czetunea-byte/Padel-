@@ -1,12 +1,13 @@
 import { useEffect, useState } from 'react';
 import { getStore, type Store } from './store';
-import type { League, Player, Session } from './types';
+import type { League, Player, Session, Settlement } from './types';
 
 export interface LeagueState {
   store: Store | null;
   league: League | null | undefined;
   players: Player[];
   sessions: Session[];
+  settlements: Settlement[];
   error: string | null;
 }
 
@@ -16,6 +17,7 @@ export function useLeague(leagueId: string | null): LeagueState {
   const [league, setLeague] = useState<League | null | undefined>(undefined);
   const [players, setPlayers] = useState<Player[]>([]);
   const [sessions, setSessions] = useState<Session[]>([]);
+  const [settlements, setSettlements] = useState<Settlement[]>([]);
   const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
@@ -29,9 +31,10 @@ export function useLeague(leagueId: string | null): LeagueState {
       store.watchLeague(leagueId, setLeague),
       store.watchPlayers(leagueId, (ps) => setPlayers([...ps].sort((a, b) => a.order - b.order))),
       store.watchSessions(leagueId, setSessions),
+      store.watchSettlements(leagueId, setSettlements),
     ];
     return () => unsubs.forEach((u) => u());
   }, [store, leagueId]);
 
-  return { store, league, players, sessions, error };
+  return { store, league, players, sessions, settlements, error };
 }

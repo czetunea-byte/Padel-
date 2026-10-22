@@ -21,6 +21,8 @@ export interface Match {
   teamB: Team;
   gamesA: number;
   gamesB: number;
+  /** la pareja ganadora venía perdiendo (se marca a mano) */
+  remontada?: boolean;
 }
 
 export interface Session {
@@ -34,5 +36,13 @@ export interface Session {
   createdAt: number;
 }
 
+/** Registro de cuando el grupo saldó cuentas: foto de lo que se pagó. */
+export interface Settlement {
+  id: string;
+  createdAt: number;
+  balances: Record<string, number>;
+}
+
 export type NewSession = Omit<Session, 'id'>;
+export type NewSettlement = Omit<Settlement, 'id'>;
 export type NewPlayer = Omit<Player, 'id'>;
