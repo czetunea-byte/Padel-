@@ -30,10 +30,10 @@ Sin configurar nada funciona en **modo demo**: los datos se guardan solo en ese 
 2. **Build → Authentication → Comenzar → Método de acceso → Anónimo → Habilitar.**
 3. **Build → Firestore Database → Crear base de datos** (modo producción, cualquier región).
    En la pestaña **Reglas**, pega el contenido de [`firestore.rules`](firestore.rules) y publica.
-4. **Configuración del proyecto (⚙️) → Tus apps → Web (`</>`)**: registra la app y copia los valores de `firebaseConfig`.
-5. En local: copia `.env.example` a `.env.local` y pega los valores.
-6. Para publicarla: en GitHub, **Settings → Secrets and variables → Actions**, crea un secret por cada variable
-   `VITE_FIREBASE_*` de `.env.example`. Luego **Settings → Pages → Source: GitHub Actions**.
+4. **Configuración del proyecto (⚙️) → Tus apps → Web (`</>`)**: registra la app y copia los valores de `firebaseConfig`
+   en [`.env.production`](.env.production) (ya está con los de `padel-cuates`). No son secretos: los datos los protegen las reglas.
+5. Para probar contra Firebase en local, copia esos valores a `.env.local` (sin él, `npm run dev` usa el modo demo).
+6. Para publicarla: en GitHub, **Settings → Pages → Source: GitHub Actions**.
    Cada push a `main` publica la app en `https://<tu-usuario>.github.io/Padel-/`.
 7. Abre la app, crea la liga, y desde ⚙️ Jugadores usa **Compartir enlace** para mandarlo al WhatsApp.
    Tip: en el celular, "Agregar a pantalla de inicio" para usarla como app.
