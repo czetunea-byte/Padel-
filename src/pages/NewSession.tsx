@@ -3,17 +3,11 @@ import { Avatar } from '../components/Avatar';
 import { Confetti } from '../components/Confetti';
 import { Podium } from '../components/Podium';
 import { Stepper } from '../components/Stepper';
+import { saveBanter } from '../lib/banter';
 import { signed, today } from '../lib/format';
 import { dayResult, pairings } from '../lib/scoring';
 import type { Match, Session } from '../lib/types';
 import { byId, type PageProps } from './types';
-
-const WIN_LINES = [
-  '¡Qué partidazo! 🎉',
-  '¡Bandeja, víbora y a casa! 🐍',
-  '¡Por 3 metros! 🚀',
-  '¡Al cristal y adentro! 🪟',
-];
 
 export function NewSession({ store, leagueId, players, sessions, editId, onDone }: PageProps & {
   editId?: string;
@@ -63,21 +57,16 @@ export function NewSession({ store, leagueId, players, sessions, editId, onDone 
 
   if (saved) {
     const res = dayResult(saved);
-    const winners = res.filter((r) => r.place === 1).map((r) => pmap[r.playerId]?.name);
+    const names = Object.fromEntries(players.map((p) => [p.id, p.name]));
+    const banter = saveBanter(res, names, saved.id);
     return (
       <div className="celebrate">
         <Confetti />
-        <h2>{WIN_LINES[Math.floor(Math.random() * WIN_LINES.length)]}</h2>
-        <p className="tagline">
-          {winners.length > 1 ? `Empate arriba: ${winners.join(' y ')}` : `${winners[0]} se lleva el día`}
-        </p>
+        <h2>{banter.title}</h2>
+        <p className="tagline">{banter.winnerLine}</p>
         <div className="card">
           <Podium entries={res.map((r) => ({ player: pmap[r.playerId], place: r.place, value: `${r.total} pts` }))} />
-          {res[3] && res[3].place > 1 && (
-            <p className="muted center small">
-              🥄 Cuchara de madera para {pmap[res[3].playerId]?.name} ({res[3].total} pts)
-            </p>
-          )}
+          {banter.loserLine && <p className="quip center">{banter.loserLine}</p>}
         </div>
         <button className="btn primary block" onClick={onDone}>
           Ver la tabla 🏆

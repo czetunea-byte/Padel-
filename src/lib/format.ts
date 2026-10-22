@@ -3,8 +3,10 @@ const longFmt = new Intl.DateTimeFormat('es', { weekday: 'long', day: 'numeric',
 
 const parse = (d: string) => new Date(`${d}T12:00:00`);
 
-export const fmtDate = (d: string) => dayFmt.format(parse(d));
-export const fmtLongDate = (d: string) => longFmt.format(parse(d));
+const capitalize = (s: string) => s.charAt(0).toUpperCase() + s.slice(1);
+
+export const fmtDate = (d: string) => capitalize(dayFmt.format(parse(d)));
+export const fmtLongDate = (d: string) => capitalize(longFmt.format(parse(d)));
 
 export function today(): string {
   const d = new Date();

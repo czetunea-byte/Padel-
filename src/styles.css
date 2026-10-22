@@ -60,7 +60,6 @@ h1, h2 { margin: 0; }
 .center { text-align: center; }
 .muted { color: var(--muted); }
 .small { font-size: 0.82rem; }
-.cap { text-transform: capitalize; }
 .grow { flex: 1; min-width: 0; }
 .left { text-align: left; }
 .row { display: flex; gap: 10px; flex-wrap: wrap; margin-top: 12px; }
@@ -132,7 +131,7 @@ h1, h2 { margin: 0; }
 
 /* Tabla */
 .standings { width: 100%; border-collapse: collapse; font-size: 0.92rem; }
-.standings th { font-size: 0.72rem; color: var(--muted); font-weight: 700; padding: 6px 4px; text-align: center; }
+.standings th { white-space: nowrap; font-size: 0.72rem; color: var(--muted); font-weight: 700; padding: 6px 4px; text-align: center; }
 .standings td { padding: 8px 4px; text-align: center; border-top: 1px solid var(--line); }
 .standings .left { text-align: left; }
 .standings .big { font-size: 1.25rem; font-weight: 900; }
@@ -244,3 +243,10 @@ h1, h2 { margin: 0; }
   .stepper input { width: 44px; font-size: 1.5rem; }
   .grid-2 { grid-template-columns: 1fr; }
 }
+
+/* Carrilla */
+.who-text { display: flex; flex-direction: column; line-height: 1.2; }
+.nick { font-size: 0.72rem; font-weight: 600; color: var(--muted); }
+.standings tr.lead .nick { color: var(--text); opacity: 0.75; }
+.quip { font-style: italic; margin: 6px 0 10px; }
+.card .quip.center { color: var(--muted); }

@@ -26,7 +26,7 @@ export function History({ store, leagueId, players, sessions, onEdit }: PageProp
             <button className="history-head" onClick={() => setOpen(isOpen ? null : s.id)}>
               <span className="jornada">J{list.length - idx}</span>
               <span className="grow left">
-                <span className="cap">{fmtDate(s.date)}</span>
+                <span>{fmtDate(s.date)}</span>
                 <span className="muted small">
                   🏆 {winners.map((w) => pmap[w.playerId]?.name).join(' & ')} · {winners[0]?.total} pts
                 </span>

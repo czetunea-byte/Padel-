@@ -2,6 +2,7 @@ import { useMemo } from 'react';
 import { Avatar } from '../components/Avatar';
 import type { Tab } from '../components/NavBar';
 import { Podium } from '../components/Podium';
+import { lastDayBanter, leaderBanter, nickname } from '../lib/banter';
 import { fmtLongDate, medal, signed } from '../lib/format';
 import { dayResult, leaderboard, sortSessions } from '../lib/scoring';
 import { byId, type PageProps } from './types';
@@ -26,9 +27,8 @@ export function Leaderboard({ players, sessions, go }: PageProps & { go: (t: Tab
     );
   }
 
-  const leader = table[0];
-  const hot = table.filter((s) => s.currentStreak >= 2);
-
+  const names = Object.fromEntries(players.map((p) => [p.id, p.name]));
+  const seed = String(sessions.length);
   return (
     <>
       <section className="card hero-card">
@@ -40,15 +40,7 @@ export function Leaderboard({ players, sessions, go }: PageProps & { go: (t: Tab
             value: `${s.daysWon} ${s.daysWon === 1 ? 'día' : 'días'}`,
           }))}
         />
-        <p className="tagline">
-          {pmap[leader.playerId]?.emoji} <b>{pmap[leader.playerId]?.name}</b> manda en la pista
-          {hot.length > 0 && (
-            <>
-              {' · '}
-              {hot.map((h) => `🔥 ${pmap[h.playerId]?.name} lleva ${h.currentStreak} seguidas`).join(' · ')}
-            </>
-          )}
-        </p>
+        <p className="tagline">{leaderBanter(table, names, seed).text}</p>
       </section>
 
       <section className="card">
@@ -71,9 +63,12 @@ export function Leaderboard({ players, sessions, go }: PageProps & { go: (t: Tab
                 <td className="left">
                   <span className="who">
                     <Avatar player={pmap[s.playerId]} size={30} />
-                    <span>
-                      {pmap[s.playerId]?.name}
-                      {s.currentStreak >= 2 && <span className="streak"> 🔥{s.currentStreak}</span>}
+                    <span className="who-text">
+                      <span>
+                        {pmap[s.playerId]?.name}
+                        {s.currentStreak >= 2 && <span className="streak"> 🔥{s.currentStreak}</span>}
+                      </span>
+                      <span className="nick">{nickname(s, table, seed).text}</span>
                     </span>
                   </span>
                 </td>
@@ -96,7 +91,8 @@ export function Leaderboard({ players, sessions, go }: PageProps & { go: (t: Tab
       {last && (
         <section className="card">
           <h2 className="card-title">Última jornada</h2>
-          <p className="muted small cap">{fmtLongDate(last.date)}</p>
+          <p className="muted small">{fmtLongDate(last.date)}</p>
+          <p className="quip">{lastDayBanter(last, names).text}</p>
           <ul className="day-list">
             {lastRes.map((r) => (
               <li key={r.playerId}>
