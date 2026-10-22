@@ -1,0 +1,9 @@
+{
+  "name": "Padel Liga",
+  "short_name": "Padel Liga",
+  "start_url": "./",
+  "display": "standalone",
+  "background_color": "#0f1b33",
+  "theme_color": "#0f1b33",
+  "icons": []
+}

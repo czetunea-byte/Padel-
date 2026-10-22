@@ -1,0 +1,14 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+    // Cualquiera con el enlace de la liga (y sesión anónima) puede ver y cargar resultados.
+    // El id de la liga es aleatorio, así que funciona como "contraseña".
+    match /leagues/{leagueId} {
+      allow get, create, update: if request.auth != null;
+      allow list, delete: if false;
+      match /{sub=**} {
+        allow read, write: if request.auth != null;
+      }
+    }
+  }
+}
